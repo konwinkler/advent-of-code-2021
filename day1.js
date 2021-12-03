@@ -49,12 +49,8 @@ const threeMeasure = (input) => {
     return increases
 }
 
+console.log(depthIncreases(example))
+console.log(depthIncreases(readFile('input1.txt')))
 
-
-(() => {
-    console.log(depthIncreases(example))
-    console.log(depthIncreases(readFile('input1.txt')))
-
-    console.log(threeMeasure(example))
-    console.log(threeMeasure(readFile('input1.txt')))
-})()
+console.log(threeMeasure(example))
+console.log(threeMeasure(readFile('input1.txt')))

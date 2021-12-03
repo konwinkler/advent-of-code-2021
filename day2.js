@@ -77,11 +77,8 @@ const endTravelWithAim = (input) => {
     return depth * horizontal
 }
 
+console.log(endTravel(example))
+console.log(endTravel(readFile('input2.txt')))
 
-(() => {
-    console.log(endTravel(example))
-    console.log(endTravel(readFile('input2.txt')))
-
-    console.log(endTravelWithAim(example))
-    console.log(endTravelWithAim(readFile('input2.txt')))
-})()
+console.log(endTravelWithAim(example))
+console.log(endTravelWithAim(readFile('input2.txt')))
