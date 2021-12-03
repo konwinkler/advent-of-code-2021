@@ -24,8 +24,6 @@ const endTravel = (input) => {
         }
     })
 
-    // console.log(lines)
-
     let depth = 0
     let horizontal = 0
 
@@ -46,11 +44,44 @@ const endTravel = (input) => {
     return depth * horizontal
 }
 
+const endTravelWithAim = (input) => {
+    const lines = input.trim().split('\n')
+    const instructions = lines.map(line => {
+        const code = line[0]
+        const amount = Number(line[line.length - 1])
+        return {
+            code,
+            amount
+        }
+    })
+
+    let aim = 0
+    let depth = 0
+    let horizontal = 0
+
+    for (const instruction of instructions) {
+        switch (instruction.code) {
+            case 'f':
+                horizontal += instruction.amount
+                depth += aim * instruction.amount
+                break
+            case 'd':
+                aim += instruction.amount
+                break;
+            case 'u':
+                aim -= instruction.amount
+                break
+        }
+    }
+
+    return depth * horizontal
+}
+
 
 (() => {
     console.log(endTravel(example))
     console.log(endTravel(readFile('input2.txt')))
 
-    // console.log(threeMeasure(example))
-    // console.log(threeMeasure(readFile('input1.txt')))
+    console.log(endTravelWithAim(example))
+    console.log(endTravelWithAim(readFile('input2.txt')))
 })()
