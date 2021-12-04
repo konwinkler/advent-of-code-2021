@@ -16,7 +16,7 @@ const example = `
 `
 
 const readFile = (fileName) => {
-  return fs.readFileSync(fileName, 'utf8')
+    return fs.readFileSync(fileName, 'utf8')
 }
 
 const gammaDelta = (input) => {
@@ -48,8 +48,67 @@ const gammaDelta = (input) => {
     return parseInt(gamma, 2) * parseInt(delta, 2)
 }
 
+const findCommon = (lines, index, tieBreaker) => {
+    let counter = 0
+    for (const line of lines) {
+        counter += line[index]
+    }
+    const middle = lines.length / 2
+    // based on tieBreaker being 0 or 1 the return values are flipped
+    if (counter === middle) {
+        return tieBreaker
+    } else if (counter > middle) {
+        return tieBreaker
+    } else {
+        return 1 - tieBreaker
+    }
+}
+
+const oxygenCO2 = (input) => {
+    let lines = input
+        .trim()
+        .split('\n')
+        .map((line) => {
+            return line.split('').map(Number)
+        })
+
+    let currentIndex = 0
+    while (lines.length > 1) {
+        // find most common bit
+        const mostCommon = findCommon(lines, currentIndex, 1)
+        // filter out the others
+        const filtered = lines.filter((line) => line[currentIndex] === mostCommon)
+        // go to next index
+        currentIndex++
+        lines = filtered
+    }
+    const oxygen = lines[0].join('')
+    console.log(`oxygen ${oxygen}`)
+
+    lines = input
+        .trim()
+        .split('\n')
+        .map((line) => {
+            return line.split('').map(Number)
+        })
+    currentIndex = 0
+    while (lines.length > 1) {
+        // find least common bit
+        const leastCommon = findCommon(lines, currentIndex, 0)
+        // filter out the others
+        const filtered = lines.filter((line) => line[currentIndex] === leastCommon)
+        // go to next index
+        currentIndex++
+        lines = filtered
+    }
+    const co2 = lines[0].join('')
+    console.log(`co2    ${co2}`)
+
+    return parseInt(oxygen, 2) * parseInt(co2, 2)
+}
+
 console.log(gammaDelta(example))
 console.log(gammaDelta(readFile('input3.txt')))
 
-// console.log(endTravelWithAim(example))
-// console.log(endTravelWithAim(readFile('input2.txt')))
+console.log(oxygenCO2(example))
+console.log(oxygenCO2(readFile('input3.txt')))
