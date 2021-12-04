@@ -116,7 +116,7 @@ const findUnmarkedNumbers = (board) => {
     return unmarkedNumbers
 }
 
-const bingo = (numbersToDraw, boards) => {
+const bingoFirst = (numbersToDraw, boards) => {
     // console.log(numbersToDraw + '\n')
 
     while (numbersToDraw.length > 0) {
@@ -143,5 +143,42 @@ const bingo = (numbersToDraw, boards) => {
     }
 }
 
-assert.equal(bingo(parseNumbersToDraw(example), parseBoards(example)), 4512)
-console.log(`part 1`, bingo(parseNumbersToDraw(readFile('input4.txt')), parseBoards(readFile('input4.txt'))))
+assert.equal(bingoFirst(parseNumbersToDraw(example), parseBoards(example)), 4512)
+console.log(`part 1`, bingoFirst(parseNumbersToDraw(readFile('input4.txt')), parseBoards(readFile('input4.txt'))))
+
+const bingoLast = (numbersToDraw, boards) => {
+    // console.log(numbersToDraw + '\n')
+
+    let number
+    while (boards.length !== 1 || !isBoardWinning(boards[0])) {
+        // draw next number
+        number = numbersToDraw.shift()
+        // console.log(`draw ${number}`)
+        // mark number in all boards
+        for (const board of boards) {
+            markNumber(board, number)
+        }
+        // console.log('board status')
+        // console.log(boards)
+        // remove winning boards
+        for (let boardIndex = 0; boardIndex < boards.length; boardIndex++) {
+            const board = boards[boardIndex]
+            // remove the board if it is winning
+            if (boards.length > 1 && isBoardWinning(board)) {
+                boards.splice(boardIndex, 1)
+                boardIndex--
+            }
+        }
+    }
+
+    // calculate score
+    const unmarkedNumbers = findUnmarkedNumbers(boards[0])
+    // console.log(`unmarked numbers `, unmarkedNumbers)
+    return unmarkedNumbers.reduce((total, current) => {
+        return total + current
+    }, 0) * number
+}
+
+assert.equal(bingoLast(parseNumbersToDraw(example), parseBoards(example)), 1924)
+console.log(`part 2`, bingoLast(parseNumbersToDraw(readFile('input4.txt')), parseBoards(readFile('input4.txt'))))
+
