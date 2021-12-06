@@ -166,7 +166,6 @@ const bingoLast = (numbersToDraw, boards) => {
             // remove the board if it is winning
             if (boards.length > 1 && isBoardWinning(board)) {
                 boards.splice(boardIndex, 1)
-                boardIndex--
             }
         }
     }
