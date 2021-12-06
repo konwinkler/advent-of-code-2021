@@ -40,10 +40,12 @@ const parseInput = (input) => {
     return result
 }
 
-const countOverlappingLines = (lines) => {
-    lines = lines.filter(line => {
-        return line.start.x === line.end.x || line.start.y === line.end.y
-    })
+const countOverlappingLines = (lines, filter = true) => {
+    if (filter) {
+        lines = lines.filter(line => {
+            return line.start.x === line.end.x || line.start.y === line.end.y
+        })
+    }
     // console.log(lines)
     // determine size of board
     const width = lines.reduce((total, current) => Math.max(total, current.start.x, current.end.x), 0) + 1
@@ -65,11 +67,14 @@ const countOverlappingLines = (lines) => {
         }
         if (line.end.x > line.start.x) {
             direction.x = 1
-        } else if (line.end.y > line.start.y) {
+        }
+        if (line.end.y > line.start.y) {
             direction.y = 1
-        } else if (line.end.x < line.start.x) {
+        }
+        if (line.end.x < line.start.x) {
             direction.x = -1
-        } else if (line.end.y < line.start.y) {
+        } 
+        if (line.end.y < line.start.y) {
             direction.y = -1
         }
         // console.log(line)
@@ -98,3 +103,5 @@ const countOverlappingLines = (lines) => {
 
 assert.equal(countOverlappingLines(parseInput(example)), 5)
 console.log(`part 1 ${countOverlappingLines(parseInput(readFile('input5.txt')))}`)
+assert.equal(countOverlappingLines(parseInput(example), false), 12)
+console.log(`part 2 ${countOverlappingLines(parseInput(readFile('input5.txt')), false)}`)
