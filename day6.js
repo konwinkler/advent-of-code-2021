@@ -10,21 +10,29 @@ const example = `
 3,4,3,1,2
 `
 const simulateLanternFish = (start, daysToSimulate) => {
-    const fishSchool = start.trim().split(',').map(Number)
+    const initialFish = start.trim().split(',').map(Number)
+    let fishSchool = new Array(9).fill(0)
+    for (const fish of initialFish) {
+        fishSchool[fish]++
+    }
+
     for (let day = 1; day <= daysToSimulate; day++) {
-        const end = fishSchool.length
-        for (let i = 0; i < end; i++) {
-            fishSchool[i]--
-            if (fishSchool[i] === -1) {
-                fishSchool[i] = 6
-                fishSchool.push(8)
+        let newSchool = new Array(9).fill(0)
+        for (let i = 0; i <= 8; i++) {
+            const fishCount = fishSchool[i]
+            if (i === 0) {
+                newSchool[6] = fishCount
+                newSchool[8] = fishCount
+            } else {
+                newSchool[i - 1] += fishCount
             }
         }
-        // console.log(`day ${day}`)
-        // console.log(fishSchool)
+        fishSchool = newSchool
     }
-    return fishSchool.length
+    return fishSchool.reduce((total, e) => total + e, 0)
 }
 
 assert.equal(simulateLanternFish(example, 80), 5934)
-console.log(simulateLanternFish(readFile('input6.txt'), 80))
+console.log('part 1', simulateLanternFish(readFile('input6.txt'), 80))
+assert.equal(simulateLanternFish(example, 256), 26984457539)
+console.log('part 2', simulateLanternFish(readFile('input6.txt'), 256))
