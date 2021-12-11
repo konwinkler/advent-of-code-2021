@@ -27,7 +27,9 @@ const countFlashes = (input, steps) => {
             return l.split('').map(Number)
         })
 
-    let countFlashes = 0
+    let total = 0
+    let firstTotal
+    const maxPossibleFlashes = map.length * map[0].length
     for (let step = 1; step <= steps; step++) {
         // increment all
         applyAll(map, (x, y) => {
@@ -35,13 +37,18 @@ const countFlashes = (input, steps) => {
         })
 
         let flashes = true
+        let countFlashesThisStep = 0
         while (flashes) {
             flashes = false
             applyAll(map, (x, y) => {
                 // flash if higher than 9
                 if (map[y][x] > 9) {
                     flashes = true
-                    countFlashes++
+                    total++
+                    countFlashesThisStep++
+                    if (countFlashesThisStep >= maxPossibleFlashes) {
+                        firstTotal = step
+                    }
                     map[y][x] = '#'
                     // increment sorrounding
                     applyAll(map, (g, h) => {
@@ -54,6 +61,12 @@ const countFlashes = (input, steps) => {
                     })
                 }
             })
+            if (firstTotal !== undefined) {
+                return {
+                    total,
+                    firstTotal
+                }
+            }
         }
 
         // reset all flashed to 0
@@ -66,8 +79,14 @@ const countFlashes = (input, steps) => {
         // console.table(map)
     }
 
-    return countFlashes
+    return {
+        total,
+        firstTotal: 0
+    }
 }
 
-assert.equal(countFlashes(example, 100), 1656)
-console.log('part 1', countFlashes(data, 100))
+assert.equal(countFlashes(example, 100)['total'], 1656)
+console.log('part 1', countFlashes(data, 100)['total'])
+
+assert.equal(countFlashes(example, 1000)['firstTotal'], 195)
+console.log('part 2', countFlashes(data, 1000)['firstTotal'])
