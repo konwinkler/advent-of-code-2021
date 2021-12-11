@@ -42,7 +42,6 @@ const syntaxErrorScore = (input) => {
         }
         stack = []
     }
-    // console.log(corrupted)
     const points = {
         ')': 3,
         ']': 57,
@@ -54,5 +53,61 @@ const syntaxErrorScore = (input) => {
         }, 0)
 }
 
+const incompleteScore = (input) => {
+    const lines = input.trim().split('\n').map(l => l.split(''))
+
+    const completions = []
+    let stack = []
+    for (const line of lines) {
+        let corrupted = false
+        for (const element of line) {
+            switch (element) {
+                case '(':
+                    stack.unshift(')')
+                    break
+                case '[':
+                    stack.unshift(']')
+                    break
+                case '{':
+                    stack.unshift('}')
+                    break
+                case '<':
+                    stack.unshift('>')
+                    break
+                default:
+                    if (element !== stack.shift()) {
+                        corrupted = true
+                    }
+            }
+            if (corrupted) {
+                break
+            }
+        }
+        if (!corrupted) {
+            completions.push(stack)
+        }
+
+        stack = []
+    }
+    const points = {
+        ')': 1,
+        ']': 2,
+        '}': 3,
+        '>': 4
+    }
+    // console.log(completions)
+    const scores = completions.map((completion) => {
+        return completion.reduce((total, element) => {
+            return total * 5 + points[element]
+        }, 0)
+    })
+    // console.log(scores)
+    scores.sort((a, b) => a - b)
+    return scores[(scores.length - 1) / 2]
+}
+
 assert.equal(syntaxErrorScore(example), 26397)
 console.log('part 1', syntaxErrorScore(data))
+
+assert.equal(incompleteScore(example), 288957)
+console.log('part 2', incompleteScore(data))
