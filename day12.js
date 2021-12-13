@@ -16,7 +16,17 @@ const isBigCave = (name) => {
     return firstLetter >= 65 && firstLetter <= 90
 }
 
-const countPathsStartingAt = (connections, current, pathTaken) => {
+const smallCaveVisitedTwice = (path) => {
+    const copy = path.slice().sort()
+    for (let i = 0; i < copy.length - 1; i++) {
+        if (!isBigCave(copy[i]) && (copy[i] === copy[i + 1])) {
+            return true
+        }
+    }
+    return false
+}
+
+const countPathsStartingAt = (connections, current, pathTaken, twice) => {
     if (current === 'end') {
         return 1
     }
@@ -24,18 +34,23 @@ const countPathsStartingAt = (connections, current, pathTaken) => {
     const nextOptions = connections.get(current)
     for (const option of nextOptions) {
         if (isBigCave(option)) {
-            paths += countPathsStartingAt(connections, option, [...pathTaken, current])
+            paths += countPathsStartingAt(connections, option, [...pathTaken, current], twice)
         } else {
-            // small cave, only if not visited before
+            // small cave
             if (!pathTaken.includes(option)) {
-                paths += countPathsStartingAt(connections, option, [...pathTaken, current])
+                paths += countPathsStartingAt(connections, option, [...pathTaken, current], twice)
+            } else if (twice) {
+                // a single small cave can be visited twice
+                if (option !== 'start' && !smallCaveVisitedTwice([...pathTaken, current])) {
+                    paths += countPathsStartingAt(connections, option, [...pathTaken, current], twice)
+                }
             }
         }
     }
     return paths
 }
 
-const countPaths = (input) => {
+const countPaths = (input, twice = false) => {
     const connections = new Map()
     const lines = input.trim().split('\n')
     for (const line of lines) {
@@ -45,19 +60,22 @@ const countPaths = (input) => {
         } else {
             connections.set(source, [target])
         }
-        if (source !== 'start' && target !== 'end') {
-            if (connections.has(target)) {
-                connections.set(target, [...connections.get(target), source])
-            } else {
-                connections.set(target, [source])
-            }
+        if (connections.has(target)) {
+            connections.set(target, [...connections.get(target), source])
+        } else {
+            connections.set(target, [source])
         }
     }
     // console.log(connections)
-    return countPathsStartingAt(connections, 'start', [])
+    return countPathsStartingAt(connections, 'start', [], twice)
 }
 
 assert.equal(countPaths(example1), 10)
 assert.equal(countPaths(example2), 19)
 assert.equal(countPaths(example3), 226)
 console.log('part 1', countPaths(data))
+
+assert.equal(countPaths(example1, true), 36)
+assert.equal(countPaths(example2, true), 103)
+assert.equal(countPaths(example3, true), 3509)
+console.log('part 2', countPaths(data, true))
