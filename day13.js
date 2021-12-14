@@ -16,9 +16,9 @@ const alreadyExists = (dots, dot) => {
     })
 }
 
-const dotsAfterFolds = (input, amountFolds) => {
+const dotsAfterFolds = (input, stopAfterOne = false) => {
     let dots = []
-    const folds = []
+    let folds = []
     const lines = input.trim().split('\n')
     let finishedDotsParsing = false
     for (const line of lines) {
@@ -27,7 +27,7 @@ const dotsAfterFolds = (input, amountFolds) => {
         } else {
             if (!finishedDotsParsing) {
                 const [x, y] = line.split(',').map(Number)
-                dots.push({x, y})
+                dots.push({ x, y })
             } else {
                 const [axis, lineNumber] = line.split('fold along ')[1].split('=')
                 folds.push({
@@ -37,51 +37,76 @@ const dotsAfterFolds = (input, amountFolds) => {
             }
         }
     }
-    // console.log(dots)
-    // console.log(folds)
+    if (stopAfterOne) {
+        folds = [folds[0]]
+    }
 
-    // make a single fold
-    const fold = folds[0]
-    let newDots = []
-    for (const dot of dots) {
-        if (fold.axis === 'y') {
-            if (dot.y >= fold.line) {
-                const diff = dot.y - fold.line
-                const newY = fold.line - diff
-                const newDot = {
-                    x: dot.x,
-                    y: newY
-                }
-                if (alreadyExists(dots, newDot)) {
-                    // do nothing so dot gets removed
+    for (const fold of folds) {
+        let newDots = []
+        for (const dot of dots) {
+            if (fold.axis === 'y') {
+                if (dot.y >= fold.line) {
+                    const diff = dot.y - fold.line
+                    const newY = fold.line - diff
+                    const newDot = {
+                        x: dot.x,
+                        y: newY
+                    }
+                    if (alreadyExists(dots, newDot)) {
+                        // do nothing so dot gets removed
+                    } else {
+                        newDots.push(newDot)
+                    }
                 } else {
-                    newDots.push(newDot)
+                    // keep dot
+                    newDots.push(dot)
                 }
             } else {
-                 // keep dot
-                 newDots.push(dot)
-            }
-        } else {
-            if (dot.x >= fold.line) {
-                const diff = dot.x - fold.line
-                const newX = fold.line - diff
-                const newDot = {
-                    x: newX,
-                    y: dot.y
-                }
-                if (alreadyExists(dots, newDot)) {
-                    // do nothing so dot gets removed
+                if (dot.x >= fold.line) {
+                    const diff = dot.x - fold.line
+                    const newX = fold.line - diff
+                    const newDot = {
+                        x: newX,
+                        y: dot.y
+                    }
+                    if (alreadyExists(dots, newDot)) {
+                        // do nothing so dot gets removed
+                    } else {
+                        newDots.push(newDot)
+                    }
                 } else {
-                    newDots.push(newDot)
+                    // keep dot
+                    newDots.push(dot)
                 }
-            } else {
-                 // keep dot
-                 newDots.push(dot)
             }
         }
+        dots = newDots
     }
-    return newDots.length
+    // pretty print
+    if (!stopAfterOne) {
+        const { width, height } = dots.reduce((max, current) => {
+            return {
+                width: Math.max(current.x, max.width),
+                height: Math.max(current.y, max.height)
+            }
+        }, { width: 0, height: 0 })
+        const board = []
+        for (let i = 0; i < height + 1; i++) {
+            const row = Array(width + 1).fill('.')
+            board.push(row)
+        }
+        for (const dot of dots) {
+            board[dot.y][dot.x] = '#'
+        }
+        console.log(board.map(row => row.join('')).join('\n'))
+    }
+
+    return dots.length
 }
 
-assert.equal(dotsAfterFolds(example, 1), 17)
-console.log('part 1', dotsAfterFolds(data, 1))
+assert.equal(dotsAfterFolds(example, true), 17)
+console.log('part 1', dotsAfterFolds(data, true))
+
+assert.equal(dotsAfterFolds(example), 16)
+console.log('')
+console.log('part 2', dotsAfterFolds(data))
