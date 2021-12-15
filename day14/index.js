@@ -1,6 +1,5 @@
 import * as fs from 'fs'
 import * as assert from 'assert'
-import { count } from 'console'
 
 const readFile = (fileName) => {
     return fs.readFileSync(fileName, 'utf8')
