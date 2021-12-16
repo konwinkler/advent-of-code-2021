@@ -19,6 +19,15 @@
       "day11": "node day11.js",
       "day12": "node day12.js",
       "day13": "node day13.js",
-      "day14": "node day14/index.js"
+      "day14": "node day14/index.js",
+      "day15": "node day15/index.js",
+      "day16": "node day16/index.js",
+      "day17": "node day17/index.js",
+      "day18": "node day18/index.js",
+      "day19": "node day19/index.js",
+      "day20": "node day20/index.js",
+      "day21": "node day21/index.js",
+      "day22": "node day22/index.js",
+      "day23": "node day23/index.js"
     }
   }
