@@ -123,10 +123,59 @@ const sumVersions = (input) => {
         .join('')
 
     const top = parsePacket(binary, 0)
-
     const sumVersion = getVersion(top)
-
     return sumVersion
+}
+
+const calculate = (packet) => {
+    switch (packet.typeID) {
+        case 0:
+            return packet.subPackets
+                .reduce((total, subPacket) => {
+                    return total + calculate(subPacket)
+                }, 0)
+        case 1:
+            return packet.subPackets
+                .reduce((total, subPacket) => {
+                    return total * calculate(subPacket)
+                }, 1)
+        case 2:
+            return packet.subPackets
+                .reduce((total, subPacket) => {
+                    return Math.min(total, calculate(subPacket))
+                }, Number.MAX_SAFE_INTEGER)
+        case 3:
+            return packet.subPackets
+                .reduce((total, subPacket) => {
+                    return Math.max(total, calculate(subPacket))
+                }, Number.MIN_SAFE_INTEGER)
+        case 4:
+            return packet.value
+        case 5:
+            const a = calculate(packet.subPackets[0])
+            const b = calculate(packet.subPackets[1])
+            return (a > b) ? 1 : 0
+        case 6:
+            const c = calculate(packet.subPackets[0])
+            const d = calculate(packet.subPackets[1])
+            return (c < d) ? 1 : 0
+        case 7:
+            const e = calculate(packet.subPackets[0])
+            const f = calculate(packet.subPackets[1])
+            return (e === f) ? 1 : 0    
+    }
+}
+
+const calculatePacket = (input) => {
+    const binary = input.split('')
+        .map((hex) => {
+            return hexMapping[hex]
+        })
+        .join('')
+
+    const top = parsePacket(binary, 0)
+    const result = calculate(top)
+    return result 
 }
 
 assert.equal(sumVersions('D2FE28'), 6)
@@ -135,3 +184,13 @@ assert.equal(sumVersions('620080001611562C8802118E34'), 12)
 assert.equal(sumVersions('C0015000016115A2E0802F182340'), 23)
 assert.equal(sumVersions('A0016C880162017C3686B18A3D4780'), 31)
 console.log('part 1', sumVersions(data))
+
+assert.equal(calculatePacket('C200B40A82'), 3)
+assert.equal(calculatePacket('04005AC33890'), 54)
+assert.equal(calculatePacket('880086C3E88112'), 7)
+assert.equal(calculatePacket('CE00C43D881120'), 9)
+assert.equal(calculatePacket('D8005AC2A8F0'), 1)
+assert.equal(calculatePacket('F600BC2D8F'), 0)
+assert.equal(calculatePacket('9C005AC2F8F0'), 0)
+assert.equal(calculatePacket('9C0141080250320F1802104A08'), 1)
+console.log('part 2', calculatePacket(data))
