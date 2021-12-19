@@ -65,13 +65,21 @@ const needsExploding = (number, depth = 0) => {
                 number
             }
         } else {
-            return needsExploding(number.left, depth + 1)
-                || needsExploding(number.right, depth + 1)
+            const leftNeeds = needsExploding(number.left, depth + 1)
+            if (leftNeeds.value) {
+                return leftNeeds
+            }
+            const rightNeeds = needsExploding(number.right, depth + 1)
+            if (rightNeeds.value) {
+                return rightNeeds
+            }
+            return { value: false }
         }
     } else {
         return { value: false }
     }
 }
+assert.equal(needsExploding(parseNumber('[1,[[1,2],3]]')).value, false)
 assert.equal(needsExploding(parseNumber('[[[[[9,8],1],2],3],4]')).value, true)
 assert.equal(needsExploding(parseNumber('[[[1,2],3],4]')).value, false)
 
@@ -173,14 +181,43 @@ const explode = (number) => {
 const explodeTest = () => {
     const number = parseNumber('[[1,2],3]')
     explode(number.left)
-    assert.equal(number.right.value, 5)
-    assert.equal(number.left.value, 0)
+    assert.equal(print(number), '[0,5]')
     const secondNumber = parseNumber('[1,[2,3]]')
     explode(secondNumber.right)
-    assert.equal(secondNumber.left.value, 3)
-    assert.equal(secondNumber.right.value, 0)
+    assert.equal(print(secondNumber), '[3,0]')
 }
 explodeTest()
+const fullExplodeTest = () => {
+    const testCases = []
+    testCases.push({
+        input: '[[[[[9,8],1],2],3],4]',
+        result: '[[[[0,9],2],3],4]'
+    })
+    testCases.push({
+        input: '[7,[6,[5,[4,[3,2]]]]]',
+        result: '[7,[6,[5,[7,0]]]]'
+    })
+    testCases.push({
+        input: '[[6,[5,[4,[3,2]]]],1]',
+        result: '[[6,[5,[7,0]]],3]'
+    })
+    testCases.push({
+        input: '[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]',
+        result: '[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]'
+    })
+    testCases.push({
+        input: '[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]',
+        result: '[[3,[2,[8,0]]],[9,[5,[7,0]]]]'
+    })
+    for (const testCase of testCases) {
+        const number = parseNumber(testCase.input)
+        const t = needsExploding(number)
+        assert.equal(t.value, true)
+        explode(t.number)
+        assert.equal(print(number), testCase.result)
+    }
+}
+fullExplodeTest()
 
 const split = (number) => {
     const { value } = number
@@ -221,14 +258,14 @@ const add = (left, right) => {
         const explodingTest = needsExploding(number)
         if (explodingTest.value) {
             reductionHappened = true
-            number = explode(explodingTest.number)
-            break
+            explode(explodingTest.number)
         }
-        const splittingTest = needsSplit(number)
-        if (splittingTest.result) {
-            reductionHappened = true
-            number = split(splittingTest.number)
-            break
+        if (!reductionHappened) {
+            const splittingTest = needsSplit(number)
+            if (splittingTest.result) {
+                reductionHappened = true
+                split(splittingTest.number)
+            }
         }
     }
     return number
@@ -260,7 +297,7 @@ const magnitude = (input) => {
     console.log(print(sum))
     while (numbers.length > 0) {
         sum = add(sum, numbers.shift())
-        console.log(print(sum))
+        // console.log(print(sum))
     }
 
     return addMagnitude(sum)
@@ -268,4 +305,5 @@ const magnitude = (input) => {
 
 
 assert.equal(magnitude(example2), 3488)
-// assert.equal(magnitude(example), 4140)
+assert.equal(magnitude(example), 4140)
+console.log('part 1', magnitude(data))
