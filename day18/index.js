@@ -271,39 +271,59 @@ const add = (left, right) => {
     return number
 }
 
-const addMagnitude = (number) => {
+const magnitudeOfNumber = (number) => {
     if (number.hasPair) {
-        return addMagnitude(number.left) * 3
-            + addMagnitude(number.right) * 2
+        return magnitudeOfNumber(number.left) * 3
+            + magnitudeOfNumber(number.right) * 2
     } else {
         return number.value
     }
 }
-assert.equal(addMagnitude(parseNumber('[[1,2],[[3,4],5]]')), 143)
-assert.equal(addMagnitude(parseNumber('[[[[0,7],4],[[7,8],[6,0]]],[8,1]]')), 1384)
-assert.equal(addMagnitude(parseNumber('[[[[1,1],[2,2]],[3,3]],[4,4]]')), 445)
-assert.equal(addMagnitude(parseNumber('[[[[3,0],[5,3]],[4,4]],[5,5]]')), 791)
-assert.equal(addMagnitude(parseNumber('[[[[5,0],[7,4]],[5,5]],[6,6]]')), 1137)
-assert.equal(addMagnitude(parseNumber('[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]')), 3488)
+assert.equal(magnitudeOfNumber(parseNumber('[[1,2],[[3,4],5]]')), 143)
+assert.equal(magnitudeOfNumber(parseNumber('[[[[0,7],4],[[7,8],[6,0]]],[8,1]]')), 1384)
+assert.equal(magnitudeOfNumber(parseNumber('[[[[1,1],[2,2]],[3,3]],[4,4]]')), 445)
+assert.equal(magnitudeOfNumber(parseNumber('[[[[3,0],[5,3]],[4,4]],[5,5]]')), 791)
+assert.equal(magnitudeOfNumber(parseNumber('[[[[5,0],[7,4]],[5,5]],[6,6]]')), 1137)
+assert.equal(magnitudeOfNumber(parseNumber('[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]')), 3488)
 
-const magnitude = (input) => {
+const sumOfAll = (input) => {
     const lines = input.trim().split('\n')
-    const numbers = []
-    for (const line of lines) {
-        numbers.push(parseNumber(line))
-    }
+    const numbers = lines.map(parseNumber)
 
     let sum = numbers.shift()
-    console.log(print(sum))
+    // console.log(print(sum))
     while (numbers.length > 0) {
         sum = add(sum, numbers.shift())
         // console.log(print(sum))
     }
 
-    return addMagnitude(sum)
+    return magnitudeOfNumber(sum)
 }
 
 
-assert.equal(magnitude(example2), 3488)
-assert.equal(magnitude(example), 4140)
-console.log('part 1', magnitude(data))
+assert.equal(sumOfAll(example2), 3488)
+assert.equal(sumOfAll(example), 4140)
+console.log('part 1', sumOfAll(data))
+
+const largestMagnitudePair = (input) => {
+    const lines = input.trim().split('\n')
+    const numbers = lines.map(parseNumber)
+
+    let largest = 0
+    for (let i = 0; i < numbers.length; i++) {
+        for (let j = 0; j < numbers.length; j++) {
+            if (i !== j) {
+                const left = structuredClone(numbers[i])
+                const right = structuredClone(numbers[j])
+                const sum = add(left, right)
+                const magnitude = magnitudeOfNumber(sum)
+                // console.log(`magnitude ${magnitude} of ${print(left)} & ${print(right)}`)
+                largest = Math.max(largest, magnitude)
+            }
+        }
+    }
+    return largest
+}
+
+assert.equal(largestMagnitudePair(example), 3993)
+console.log('part 2', largestMagnitudePair(data))
